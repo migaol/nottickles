@@ -1,21 +1,23 @@
+import discord
 from discord.ext import commands
+from discord import app_commands
+from typing import Optional
+from helpers import constants
 
-class CustomHelpCommand(commands.HelpCommand):
+async def setup(bot: commands.Bot):
+    await bot.add_cog(Help(bot))
+
+class Help(commands.Cog):
+    bot = None
+    thiscategory = 'help'
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-    
-    @commands.command(name='help')
-    async def custom_help(self, ctx, *, command_name=None):
-        if command_name:
-            command = self.bot.get_command(command_name)
-            if command:
-                # Display help for the specific command
-                await ctx.send(f"Help for command '{command_name}':\n{command.help}")
-            else:
-                await ctx.send("Command not found.")
-        else:
-            # Display general help
-            help_text = "List of available commands:\n"
-            for command in self.bot.commands:
-                help_text += f"**{command.name}**: {command.help}\n"
-            await ctx.send(help_text)
+
+    @app_commands.command(name='help', description='Show bot help info', extras={'category': thiscategory})
+    async def help(self, interaction: discord.Interaction):
+        embed = discord.Embed(
+            title=f"{self.bot.user.name} help",
+            description="lol i haven't added this yet",
+            color=constants.Color.CERULEAN_BLUE.value
+        )
+        await interaction.response.send_message(embed=embed)

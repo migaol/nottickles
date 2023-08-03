@@ -49,7 +49,7 @@ class Wows(commands.cog):
 
         if category == 'account':
             if query in ['players', 'list']:
-                
+                url += 'list/'
             elif query in ['personal_data', 'info']:
                 url += 'info/'
             elif query in ['achievements']:
