@@ -1,7 +1,7 @@
 from enum import Enum
 
 class Format(Enum):
-    WOWS_PLAYERS_PER_ROW = 10
+    WOWS_DEFAULT_PAGE_SIZE = 10
     WOWS_SIZE_PPREV = -5
     WOWS_SIZE_PREV = -1
     WOWS_SIZE_NEXT = 1
