@@ -21,7 +21,7 @@ class CustomHelpCommand(commands.HelpCommand):
         return await super().send_cog_help(cog)
 
 async def load_commands(bot: commands.Bot):
-    skip = ['wows.py']
+    skip = []
     for filename in os.listdir('./cogs'):
         if filename in skip: continue
         if filename.endswith('.py'):

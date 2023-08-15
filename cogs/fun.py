@@ -24,15 +24,17 @@ class Fun(commands.Cog):
         if message == "bruh there's nothing to repeat": await ctx.send("ok bro")
         else: await ctx.send(message)
 
-    @commands.hybrid_command(name='spam', aliases=['s'], description='Pings you multiple times with a message')
+    @commands.hybrid_command(name='spam', aliases=['s'], description='Pings you multiple times with a message (capped at 100)')
     @app_commands.describe(times='Number of times to repeat', message='The message')
     async def spam(args, ctx: commands.context.Context, times: Optional[int] = 1, message: Optional[str] = None):
         if message in constants.CharMap.CHARMAP.value:
             message = constants.CharMap.CHARMAP.value[message]
-        for i in range(times):
+        times = max(1, times)
+        times = min(100, times)
+        for _ in range(times):
             await ctx.send(f'{ctx.author.mention} {message}')
 
-    @commands.hybrid_command(name='bounce', description='bounce')
+    @commands.hybrid_command(name='bounce', description='bouncing webm')
     async def bounce(args, ctx: commands.context.Context):
         await ctx.send(file=discord.File('helpers/assets/bounce.webm'))
 

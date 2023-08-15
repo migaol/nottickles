@@ -1,5 +1,12 @@
 from enum import Enum
 
+class Format(Enum):
+    WOWS_PLAYERS_PER_ROW = 10
+    WOWS_SIZE_PPREV = -5
+    WOWS_SIZE_PREV = -1
+    WOWS_SIZE_NEXT = 1
+    WOWS_SIZE_NNEXT = 5
+
 class Color(Enum):
     ROYAL_BLUE = 0x0072BD
     BURNT_ORANGE = 0xD95319
@@ -19,6 +26,12 @@ class CharMap(Enum):
         'amogus': SpecialChars.AMOGUS.value,
         'lenny': SpecialChars.LENNY.value
     }
+
+class Emojis(Enum):
+    PREV = '\U000025C0'
+    PPREV = '\U000023EA'
+    NEXT = '\U000025B6'
+    NNEXT= '\U000023E9'
 
 class Link(Enum):
     INVITE = 'https://discord.com/api/oauth2/authorize?client_id=1134186264430649404&permissions=534925277248&scope=bot'
