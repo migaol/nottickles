@@ -6,9 +6,7 @@ from typing import Callable, Union, List
 
 class AbstractPaginatedTable(ABC):
     page = 0
-    total_entries, total_pages = 0, 0
-    meta, data = None, None
-    title_function, parse_function = None, None
+    total_pages = 0
 
     @abstractmethod
     def page_footer(self) -> str:
@@ -44,7 +42,7 @@ class PaginatedDF(AbstractPaginatedTable):
     meta, data = None, None
     title_function, parse_function = None, None
 
-    def __init__(self, meta: dict, data: Union[dict, pd.DataFrame], title_function: Callable, parse_function: Callable):
+    def __init__(self, meta: dict, data: Union[list, pd.DataFrame], title_function: Callable, parse_function: Callable):
         self.page = 0
         self.per_row = constants.Format.WOWS_DEFAULT_PAGE_SIZE.value
         self.meta = meta
@@ -69,3 +67,32 @@ class PaginatedDF(AbstractPaginatedTable):
     def jump_page(self, offset: int) -> pd.DataFrame:
         self.page += offset
         return self.data.iloc[self.num_page_first_entry() : self.num_page_last_entry()+1]
+    
+class CustomPaginatedDF(AbstractPaginatedTable):
+    page = 0
+    total_pages = 0
+    meta, data = None, None
+    title_function, parse_function = None, None
+
+    def __init__(self, meta: dict, data: Union[list, pd.DataFrame], title_function: Callable, parse_function: Callable):
+        self.page = 0
+        self.meta = meta
+        self.data = data
+        self.total_pages = len(data)
+        self.title_function = title_function
+        self.parse_function = parse_function
+
+    def page_footer(self) -> str:
+        return (
+            f"Showing page {self.page+1} of {self.total_pages}"
+        )
+
+    def jump_page(self, offset: int) -> pd.DataFrame:
+        self.page += offset
+        return self.data[self.page]
+        
+    def num_page_first_entry(self) -> int:
+        pass
+        
+    def num_page_last_entry(self) -> int:
+        pass

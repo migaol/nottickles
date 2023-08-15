@@ -4,7 +4,7 @@ from discord import app_commands
 from discord.ui import View, Button
 from typing import Optional, Union
 from helpers import constants, nav_menu
-import requests, json
+import requests, json, datetime
 import pandas as pd
 
 async def setup(bot: commands.Bot):
@@ -58,7 +58,7 @@ class Wows(commands.Cog):
         def title_function(meta: dict, data: Union[dict, pd.DataFrame]) -> str:
             return f"Player search: '{meta['player']}'"
         
-        def parse_function(embed: discord.Embed, data: Union[dict, pd.DataFrame]) -> str:
+        def parse_function(embed: discord.Embed, data: Union[dict, pd.DataFrame]):
             nicknames = data['nickname'].values.astype(str)
             nicknames = [x.replace('_', '\_') for x in nicknames]
             account_ids = data['account_id'].values.astype(str)
@@ -66,9 +66,7 @@ class Wows(commands.Cog):
             embed.add_field(name='Account ID', value='\n'.join(account_ids), inline=True)
 
         view = nav_menu.NavMenu(
-            meta=meta, data=data,
-            title_function=title_function,
-            parse_function=parse_function
+            meta=meta, data=data, title_function=title_function, parse_function=parse_function, type='PaginatedDF'
         )
 
         await interaction.response.send_message(
@@ -85,24 +83,20 @@ class Wows(commands.Cog):
         apidata = await self.get_apidata(interaction, url)
         if not apidata: return
 
-        meta, data = apidata['meta'], apidata['data']
+        meta, data = apidata['meta'], apidata['data'][str(uid)]
         meta['player'] = player
+        pages = []
+        pages.append(pd.DataFrame([[x, data[x]] for x in data if x != 'statistics']))
         
         def title_function(meta: dict, data: Union[dict, pd.DataFrame]) -> str:
-            return f"Player data search: '{meta['player']}'"
+            return f"Player data: '{meta['player']}'"
         
         def parse_function(embed: discord.Embed, data: Union[dict, pd.DataFrame]) -> str:
-            return
-            # nicknames = data['nickname'].values.astype(str)
-            # nicknames = [x.replace('_', '\_') for x in nicknames]
-            # account_ids = data['account_id'].values.astype(str)
-            # embed.add_field(name='Nickname', value='\n'.join(nicknames), inline=True)
-            # embed.add_field(name='Account ID', value='\n'.join(account_ids), inline=True)
+            for i,r in data.iterrows():
+                embed.add_field(name=r[0], value=r[1], inline=True)
 
         view = nav_menu.NavMenu(
-            meta=meta, data=data,
-            title_function=title_function,
-            parse_function=parse_function
+            meta=meta, data=pages, title_function=title_function, parse_function=parse_function, type='CustomPaginatedDF'
         )
 
-        await interaction.response.send_message(embed=view.update_embed(), view=view)
+        await interaction.response.send_message(embed=view.update_embed(view.ptable.meta, view.ptable.jump_page(0)), view=view)

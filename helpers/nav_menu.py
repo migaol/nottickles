@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 from discord.ui import View, Button
 from helpers import constants, paginated_table
-from typing import Callable, Union
+from typing import Any, Callable, Coroutine, Union
 import pandas as pd
 import math
 
@@ -30,9 +30,13 @@ class NavMenu(discord.ui.View):
         nextpage = self.ptable.jump_page(constants.Format.WOWS_SIZE_NNEXT.value)
         await interaction.response.edit_message(embed=self.update_embed(self.ptable.meta, nextpage), view=self)
 
-    def __init__(self, meta: dict, data: Union[dict, pd.DataFrame], title_function: Callable, parse_function: Callable):
+    def __init__(self, meta: dict, data: Union[dict, pd.DataFrame], title_function: Callable, parse_function: Callable,
+                type: str):
         super().__init__()
-        self.ptable = paginated_table.PaginatedDF(meta, data, title_function, parse_function)
+        if type == 'PaginatedDF':
+            self.ptable = paginated_table.PaginatedDF(meta, data, title_function, parse_function)
+        else:
+            self.ptable = paginated_table.CustomPaginatedDF(meta, data, title_function, parse_function)
         self.pprev_btn = [x for x in self.children if x.custom_id == "pprev"][0]
         self.prev_btn = [x for x in self.children if x.custom_id == "prev"][0]
         self.next_btn = [x for x in self.children if x.custom_id == "next"][0]
