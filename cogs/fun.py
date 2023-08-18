@@ -38,6 +38,10 @@ class Fun(commands.Cog):
     async def bounce(args, ctx: commands.context.Context):
         await ctx.send(file=discord.File('helpers/assets/bounce.webm'))
 
+    @commands.hybrid_command(name='rattospace', aliases=['spacerat', 'rts'], description='send a rat to space')
+    async def rts(args, ctx: commands.context.Context):
+        await ctx.send(file=discord.File('helpers/assets/rat_to_space.mp4'))
+
     @commands.hybrid_command(name='thatsroughbuddy', aliases=['trb'], description="That's rough buddy")
     async def thatsroughbuddy(args, ctx: commands.context.Context):
         await ctx.send(constants.Attach.THATSROUGHBUDDY.value)
