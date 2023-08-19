@@ -26,7 +26,7 @@ class ReloadCogs(commands.Cog):
         embed = discord.Embed(
             title='Reloaded modules:',
             description='\n'.join([x for x in reloaded]),
-            color=constants.Color.CRIMSON_RED.value
+            color=constants.Color.CRIMSON_RED
         )
         await ctx.send(embed=embed)
         print(f"✅ modules reloaded")
@@ -44,7 +44,7 @@ class ReloadCogs(commands.Cog):
     #     embed = discord.Embed(
     #         title='Reloaded modules:',
     #         description='\n'.join([x for x in reloaded]),
-    #         color=constants.Color.CRIMSON_RED.value
+    #         color=constants.Color.CRIMSON_RED
     #     )
     #     await interaction.response.send_message(embed=embed)
     #     print(f"✅ modules reloaded")

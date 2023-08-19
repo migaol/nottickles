@@ -17,8 +17,8 @@ class Settings(commands.Cog):
     async def invite(self, interaction: discord.Interaction):
         embed = discord.Embed(
             title="Use this link to invite me to servers:",
-            description=constants.Link.INVITE.value,
-            color=constants.Color.CERULEAN_BLUE.value
+            description=constants.Link.INVITE,
+            color=constants.Color.CERULEAN_BLUE
         )
         await interaction.response.send_message(embed=embed)
 
@@ -40,8 +40,8 @@ class Settings(commands.Cog):
             await interaction.response.send_message(f'Username cannot be empty')
             return
         if interaction.guild.me.guild_permissions.change_nickname:
-            if new_nickname in constants.CharMap.CHARMAP.value:
-                new_nickname = constants.CharMap.CHARMAP.value[new_nickname]
+            if new_nickname in constants.SpecialChars.CHARMAP:
+                new_nickname = constants.SpecialChars.CHARMAP[new_nickname]
             await interaction.guild.me.edit(nick=new_nickname)
             await interaction.response.send_message(f"Nickname changed to: {new_nickname}")
         else:

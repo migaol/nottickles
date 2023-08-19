@@ -18,6 +18,6 @@ class Help(commands.Cog):
         embed = discord.Embed(
             title=f"{self.bot.user.name} help",
             description="lol i haven't added this yet",
-            color=constants.Color.CERULEAN_BLUE.value
+            color=constants.Color.CERULEAN_BLUE
         )
         await interaction.response.send_message(embed=embed)

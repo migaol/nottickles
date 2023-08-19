@@ -25,16 +25,16 @@ class AbstractPaginatedTable(ABC):
         pass
 
     def can_pprev(self) -> bool:
-        return False if self.page + constants.Format.SIZE_PPREV.value < 0 else True
+        return False if self.page + constants.Format.SIZE_PPREV < 0 else True
     
     def can_prev(self) -> bool:
-        return False if self.page + constants.Format.SIZE_PREV.value < 0 else True
+        return False if self.page + constants.Format.SIZE_PREV < 0 else True
 
     def can_next(self) -> bool:
-        return False if self.page + constants.Format.SIZE_NEXT.value >= self.total_pages else True
+        return False if self.page + constants.Format.SIZE_NEXT >= self.total_pages else True
     
     def can_nnext(self) -> bool:
-        return False if self.page + constants.Format.SIZE_NNEXT.value >= self.total_pages else True
+        return False if self.page + constants.Format.SIZE_NNEXT >= self.total_pages else True
 
 class PaginatedDF(AbstractPaginatedTable):
     page, per_row = 0, 0
@@ -44,7 +44,7 @@ class PaginatedDF(AbstractPaginatedTable):
 
     def __init__(self, meta: dict, data: Union[list, pd.DataFrame], title_function: Callable, parse_function: Callable):
         self.page = 0
-        self.per_row = constants.Format.DEFAULT_PAGE_SIZE.value
+        self.per_row = constants.Format.DEFAULT_PAGE_SIZE
         self.meta = meta
         self.data = data
         self.total_entries = meta['count']

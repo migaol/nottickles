@@ -33,7 +33,7 @@ class Wows(commands.Cog):
         if apidata['status'] == 'error':
             embed = discord.Embed(
                 title='An error occurred while accessing the API',
-                color=constants.Color.BURNT_ORANGE.value
+                color=constants.Color.BURNT_ORANGE
             )
             for field in apidata['error']:
                 embed.add_field(
@@ -68,7 +68,7 @@ class Wows(commands.Cog):
         def title_function(meta: dict, data: Union[dict, pd.DataFrame]) -> str:
             return f"Player search (Server: {meta['server']}): '{meta['player']}' "
         
-        def parse_function(embed: discord.Embed, data: Union[dict, pd.DataFrame]):
+        def parse_function(embed: discord.Embed, meta: dict, data: Union[dict, pd.DataFrame]):
             nicknames = data['nickname'].values.astype(str)
             nicknames = [x.replace('_', '\_') for x in nicknames]
             account_ids = data['account_id'].values.astype(str)
@@ -108,7 +108,9 @@ class Wows(commands.Cog):
                 if not key.startswith(';'):
                     if entry[1] == 'None':
                         entry[1] = '-'
-                    if entry[0].endswith(' time') or entry[0].endswith(' at'):
+                    elif key.endswith('_time') or key.endswith('_at'):
+                        entry[0] = entry[0].removesuffix('_time').removesuffix('_at')
+                        entry[0] = entry[0].replace('Created', 'Account created')
                         entry[1] = datetime.datetime.fromtimestamp(entry[1]).strftime('%Y-%m-%d %H:%M:%S')
                     page1_account_general.append(entry)
                 elif not key.startswith(';;'):
@@ -129,7 +131,7 @@ class Wows(commands.Cog):
         def title_function(meta: dict, data: Union[dict, pd.DataFrame]) -> str:
             return f"Player data (Server: {meta['server']}): '{meta['player']}'"
         
-        def parse_function(embed: discord.Embed, data: Union[dict, pd.DataFrame]) -> str:
+        def parse_function(embed: discord.Embed, meta: dict, data: Union[dict, pd.DataFrame]) -> str:
             for i,r in data.iterrows():
                 embed.add_field(name=r[0], value=r[1], inline=True)
 
@@ -156,8 +158,68 @@ class Wows(commands.Cog):
         apidata = await self.get_apidata(interaction, url)
         if not apidata: return
 
-        meta, data = apidata['meta'], apidata['data']
+        meta, data = apidata['meta'], apidata['data'][ship_id]
         meta['shipname'] = shipname
         meta['ship_id'] = ship_id
+        meta['tier'] = constants.Wows.tier_roman[data['tier']]
+        meta['nation'] = constants.Wows.ship_nationality[data['nation']]
+        meta['type'] = constants.Wows.ship_type[data['type']]
+        if data['is_premium']: meta['_ICON'] = constants.Wows.ship_type_image[data['type']]['image_premium']
+        elif data['is_special']: meta['_ICON'] = constants.Wows.ship_type_image[data['type']]['image_elite']
+        else: meta['_ICON'] = constants.Wows.ship_type_image[data['type']]['image']
+        meta['_PICTURE'] = data['images']['large']
+        def add_pages():
+            pages = []
+            expdata = json_parser.expand_json(data)
 
-        await interaction.response.send_message(shipname)
+            page1_description = []
+            for key in expdata:
+                entry = [json_parser.clean_label(key), expdata[key]]
+                if not key.startswith(';'):
+                    if key == 'upgrades': continue
+                    elif key == 'nation': entry[1] = constants.Wows.ship_nation[entry[1]]
+                    elif key == 'price_credit':
+                        entry[0] = 'Price in credits'
+                        entry[1] = f"{constants.Wows.Emojis.silver} {entry[1]:,}"
+                    elif key == 'price_gold':
+                        entry[0] = 'Price in doubloons'
+                        entry[1] = f"{constants.Wows.Emojis.gold} {entry[1]:,}"
+                    elif key == 'has_demo_profile': entry[0] = 'Test ship'
+                    elif key == 'is_premium': entry[0] = 'Premium ship'
+                    elif key == 'is_special': entry[0] = 'Special ship'
+                    elif key == 'mod_slots': entry[0] = 'Modification slots'
+                    page1_description.append(entry)
+                elif not key.startswith(';;'):
+                    if key == ';images;contour': page1_description.append(['_IMAGE', entry[1]])
+
+            pages.append(pd.DataFrame(page1_description))
+
+            return pages
+        pages = add_pages()
+
+        subtitles = [
+            'General Ship Information',
+        ]
+        
+        def title_function(meta: dict, data: Union[dict, pd.DataFrame]) -> str:
+            return # f"Ship information: '{meta['shipname']}'"
+        
+        def parse_function(embed: discord.Embed, meta: dict, data: Union[dict, pd.DataFrame]) -> str:
+            embed.set_author(
+                name=f"Tier {meta['tier']} {meta['nation']} {meta['type']}: {meta['shipname']}",
+                icon_url=meta['_ICON']
+            )
+            embed.set_thumbnail(url=meta['_PICTURE'])
+            for i,r in data.iterrows():
+                if r[0] == '_IMAGE':
+                    embed.set_image(url=r[1])
+                else:
+                    inline = (len(str(r[1])) < constants.Format.EMBED_INLINE_THRESHOLD)
+                    embed.add_field(name=r[0], value=r[1], inline=inline)
+
+        view = nav_menu.NavMenu(
+            meta=meta, data=pages, title_function=title_function, parse_function=parse_function, type='CustomPaginatedDF'
+        )
+        view.ptable.subtitles = subtitles
+
+        await interaction.response.send_message(embed=view.update_embed(view.ptable.meta, view.ptable.jump_page(0)), view=view)

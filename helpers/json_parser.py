@@ -15,5 +15,5 @@ def expand_json(json: dict):
 def clean_label(s: str):
     sci = s.rfind(';')
     cleaned = s if sci == -1 else s[sci + 1:]
-    cleaned = cleaned.replace('_', ' ').capitalize()
+    cleaned = cleaned.replace('_', ' ').capitalize().replace(' id ', ' ID ')
     return cleaned

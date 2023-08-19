@@ -19,16 +19,16 @@ class Fun(commands.Cog):
         if not message:
             await ctx.send("bruh there's nothing to repeat")
             return
-        if message in constants.CharMap.CHARMAP.value:
-            message = constants.CharMap.CHARMAP.value[message]
+        if message in constants.SpecialChars.CHARMAP:
+            message = constants.SpecialChars.CHARMAP[message]
         if message == "bruh there's nothing to repeat": await ctx.send("ok bro")
         else: await ctx.send(message)
 
     @commands.hybrid_command(name='spam', aliases=['s'], description='Pings you multiple times with a message (capped at 100)')
     @app_commands.describe(times='Number of times to repeat', message='The message')
     async def spam(args, ctx: commands.context.Context, times: Optional[int] = 1, message: Optional[str] = None):
-        if message in constants.CharMap.CHARMAP.value:
-            message = constants.CharMap.CHARMAP.value[message]
+        if message in constants.SpecialChars.CHARMAP:
+            message = constants.SpecialChars.CHARMAP[message]
         times = max(1, times)
         times = min(100, times)
         for _ in range(times):
@@ -36,12 +36,12 @@ class Fun(commands.Cog):
 
     @commands.hybrid_command(name='bounce', description='bouncing webm')
     async def bounce(args, ctx: commands.context.Context):
-        await ctx.send(file=discord.File('assets/bounce.webm'))
+        await ctx.send(file=discord.File(constants.Attach.File.BOUNCE))
 
     @commands.hybrid_command(name='rattospace', aliases=['spacerat', 'rts'], description='send a rat to space')
     async def rts(args, ctx: commands.context.Context):
-        await ctx.send(file=discord.File('assets/rat_to_space.mp4'))
+        await ctx.send(file=discord.File(constants.Attach.File.RATTOSPACE))
 
     @commands.hybrid_command(name='thatsroughbuddy', aliases=['trb'], description="That's rough buddy")
     async def thatsroughbuddy(args, ctx: commands.context.Context):
-        await ctx.send(constants.Attach.THATSROUGHBUDDY.value)
+        await ctx.send(constants.Attach.External.THATSROUGHBUDDY)
