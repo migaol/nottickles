@@ -13,7 +13,7 @@ class Fun(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.hybrid_command(name='repeat', aliases=['r'], description='Repeats your message back to you')
+    @commands.hybrid_command(name='repeat', aliases=['rp'], description='Repeats your message back to you')
     @app_commands.describe(message='The message to repeat')
     async def repeat(args, ctx: commands.context.Context, message: Optional[str] = None):
         if not message:
@@ -36,11 +36,11 @@ class Fun(commands.Cog):
 
     @commands.hybrid_command(name='bounce', description='bouncing webm')
     async def bounce(args, ctx: commands.context.Context):
-        await ctx.send(file=discord.File('helpers/assets/bounce.webm'))
+        await ctx.send(file=discord.File('assets/bounce.webm'))
 
     @commands.hybrid_command(name='rattospace', aliases=['spacerat', 'rts'], description='send a rat to space')
     async def rts(args, ctx: commands.context.Context):
-        await ctx.send(file=discord.File('helpers/assets/rat_to_space.mp4'))
+        await ctx.send(file=discord.File('assets/rat_to_space.mp4'))
 
     @commands.hybrid_command(name='thatsroughbuddy', aliases=['trb'], description="That's rough buddy")
     async def thatsroughbuddy(args, ctx: commands.context.Context):

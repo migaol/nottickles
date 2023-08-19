@@ -73,6 +73,7 @@ class CustomPaginatedDF(AbstractPaginatedTable):
     total_pages = 0
     meta, data = None, None
     title_function, parse_function = None, None
+    subtitles = []
 
     def __init__(self, meta: dict, data: Union[list, pd.DataFrame], title_function: Callable, parse_function: Callable):
         self.page = 0

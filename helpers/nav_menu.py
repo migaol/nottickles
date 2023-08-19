@@ -50,6 +50,8 @@ class NavMenu(discord.ui.View):
         ).set_footer(
             text=self.ptable.page_footer()
         )
+        if isinstance(self.ptable, paginated_table.CustomPaginatedDF):
+            embed.description = f"**{self.ptable.subtitles[self.ptable.page]}**"
         self.ptable.parse_function(embed, nextpage)
         return embed
     
