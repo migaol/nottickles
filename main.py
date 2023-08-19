@@ -1,8 +1,9 @@
-import bot_token, discord, os, asyncio
+import bot_secrets, discord, os, asyncio
 from discord.ext import commands
 from discord.ext.commands.cog import Cog
 from discord.ext.commands.core import Command, Group
-from typing import Any, List, Mapping, Optional, Callable
+from typing import Any, List, Mapping, Callable
+from helpers import constants, wows_ships
 
 class CustomHelpCommand(commands.HelpCommand):
     def __init__(self):
@@ -25,7 +26,7 @@ async def load_commands(bot: commands.Bot):
     for filename in os.listdir('./cogs'):
         if filename in skip: continue
         if filename.endswith('.py'):
-            print('   ', filename)
+            print(f'\t{filename}')
             await bot.load_extension(f'cogs.{filename[:-3]}')
 
 if __name__ == '__main__':
@@ -42,9 +43,11 @@ if __name__ == '__main__':
 
     print(f"⏳ loading commands...")
     asyncio.run(load_commands(bot))
-    # for c in list(bot.commands):
-    #     print('   - ', c)
     print(f"✅ commands loaded")
+
+    print(f"⏳ loading wows ships...")
+    wows_ships.load_ship_ids()
+    print(f"✅ wows ships loaded")
 
     print(f"⏳ logging in...")
     @bot.event
@@ -53,4 +56,4 @@ if __name__ == '__main__':
         print(f"✅ logged in as {bot.user}")
     
     # client.run(os.getenv('TOKEN'))
-    bot.run(bot_token.TOKEN)
+    bot.run(bot_secrets.TOKEN)
