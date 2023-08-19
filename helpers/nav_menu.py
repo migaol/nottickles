@@ -12,22 +12,22 @@ class NavMenu(discord.ui.View):
 
     @discord.ui.button(style=discord.ButtonStyle.gray, emoji=constants.Emojis.PPREV.value, custom_id="pprev")
     async def pprev_callback(self, interaction: discord.Interaction, button: Button):
-        nextpage = self.ptable.jump_page(constants.Format.WOWS_SIZE_PPREV.value)
+        nextpage = self.ptable.jump_page(constants.Format.SIZE_PPREV.value)
         await interaction.response.edit_message(embed=self.update_embed(self.ptable.meta, nextpage), view=self)
 
     @discord.ui.button(style=discord.ButtonStyle.gray, emoji=constants.Emojis.PREV.value, custom_id="prev")
     async def prev_callback(self, interaction: discord.Interaction, button: Button):
-        nextpage = self.ptable.jump_page(constants.Format.WOWS_SIZE_PREV.value)
+        nextpage = self.ptable.jump_page(constants.Format.SIZE_PREV.value)
         await interaction.response.edit_message(embed=self.update_embed(self.ptable.meta, nextpage), view=self)
 
     @discord.ui.button(style=discord.ButtonStyle.gray, emoji=constants.Emojis.NEXT.value, custom_id="next")
     async def next_callback(self, interaction: discord.Interaction, button: Button):
-        nextpage = self.ptable.jump_page(constants.Format.WOWS_SIZE_NEXT.value)
+        nextpage = self.ptable.jump_page(constants.Format.SIZE_NEXT.value)
         await interaction.response.edit_message(embed=self.update_embed(self.ptable.meta, nextpage), view=self)
 
     @discord.ui.button(style=discord.ButtonStyle.gray, emoji=constants.Emojis.NNEXT.value, custom_id="nnext")
     async def nnext_callback(self, interaction: discord.Interaction, button: Button):
-        nextpage = self.ptable.jump_page(constants.Format.WOWS_SIZE_NNEXT.value)
+        nextpage = self.ptable.jump_page(constants.Format.SIZE_NNEXT.value)
         await interaction.response.edit_message(embed=self.update_embed(self.ptable.meta, nextpage), view=self)
 
     def __init__(self, meta: dict, data: Union[dict, pd.DataFrame], title_function: Callable, parse_function: Callable,

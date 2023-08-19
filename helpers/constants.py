@@ -1,11 +1,11 @@
 from enum import Enum
 
 class Format(Enum):
-    WOWS_DEFAULT_PAGE_SIZE = 10
-    WOWS_SIZE_PPREV = -5
-    WOWS_SIZE_PREV = -1
-    WOWS_SIZE_NEXT = 1
-    WOWS_SIZE_NNEXT = 5
+    DEFAULT_PAGE_SIZE = 10
+    SIZE_PPREV = -5
+    SIZE_PREV = -1
+    SIZE_NEXT = 1
+    SIZE_NNEXT = 5
 
 class Color(Enum):
     ROYAL_BLUE = 0x0072BD
@@ -39,4 +39,6 @@ class Link(Enum):
 class Attach(Enum):
     BOUNCE = 'https://cdn.discordapp.com/attachments/704613785247154256/1006598759930658928/trim.A3677A18-771B-4390-B9B4-A1570B77FCA5_Bounce.webm'
     THATSROUGHBUDDY = 'https://tenor.com/view/my-first-girlfriend-turned-into-the-moon-thats-rough-that-rough-buddy-avatar-avatar-the-last-airbender-gif-5710468'
-    
+
+class Wows:
+    ship_index = {}
