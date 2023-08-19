@@ -25,3 +25,4 @@ def load_ship_ids():
             ship = apidata['data'][ship_id]['name']
             informal = unidecode(ship).lower().removeprefix('admiral ')
             constants.Wows.ship_index[informal] = {'name': ship, 'id': ship_id}
+            constants.Wows.ship_id_index[ship_id] = ship

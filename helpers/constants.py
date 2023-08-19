@@ -46,6 +46,7 @@ class Wows:
         gold = '<:wows_gold:1142530866170572804>'
     
     ship_index = {}
+    ship_id_index = {}
     tier_roman = {
         1: 'I',
         2: 'II',

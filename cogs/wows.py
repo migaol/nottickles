@@ -105,7 +105,8 @@ class Wows(commands.Cog):
             page2_game_general = []
             for key in expdata:
                 entry = [json_parser.clean_label(key), expdata[key]]
-                if not key.startswith(';'):
+                if not ';' in key:
+                    if key in ['private', 'karma', 'nickname']: continue
                     if entry[1] == 'None':
                         entry[1] = '-'
                     elif key.endswith('_time') or key.endswith('_at'):
@@ -113,9 +114,14 @@ class Wows(commands.Cog):
                         entry[0] = entry[0].replace('Created', 'Account created')
                         entry[1] = datetime.datetime.fromtimestamp(entry[1]).strftime('%Y-%m-%d %H:%M:%S')
                     page1_account_general.append(entry)
-                elif not key.startswith(';;'):
-                    entry[0] = json_parser.clean_label(entry[0])
-                    page2_game_general.append(entry)
+            page2_game_general += [
+                ['Total Battles', f"{expdata['statistics;battles']:,}"],
+                ['Total Distance Sailed', f"{expdata['statistics;distance']:,} mi\n{int(expdata['statistics;distance']*1.609344):,} km"],
+                ['Maximum XP', f"{expdata['statistics;pvp;max_xp']:,}"],
+                ['Total Damage to Buildings', f"{expdata['statistics;pvp;damage_to_buildings']:,}"],
+                ['Maximum Ships Spotted', f"{expdata['statistics;pvp;max_ships_spotted']} ({constants.Wows.ship_id_index[str(expdata['statistics;pvp;max_ships_spotted_ship_id'])]})"],
+                ['Total Ships Spotted', f"{expdata['statistics;pvp;ships_spotted']:,}"]
+            ]
 
             pages.append(pd.DataFrame(page1_account_general))
             pages.append(pd.DataFrame(page2_game_general))
@@ -133,7 +139,7 @@ class Wows(commands.Cog):
         
         def parse_function(embed: discord.Embed, meta: dict, data: Union[dict, pd.DataFrame]) -> str:
             for i,r in data.iterrows():
-                embed.add_field(name=r[0], value=r[1], inline=True)
+                embed.add_field(name=f'🔹{r[0]}', value=r[1], inline=True)
 
         view = nav_menu.NavMenu(
             meta=meta, data=pages, title_function=title_function, parse_function=parse_function, type='CustomPaginatedDF'
@@ -175,14 +181,14 @@ class Wows(commands.Cog):
             page1_description = []
             for key in expdata:
                 entry = [json_parser.clean_label(key), expdata[key]]
-                if not key.startswith(';'):
+                if not ';' in key:
                     if key == 'upgrades': continue
                     elif key == 'nation': entry[1] = constants.Wows.ship_nation[entry[1]]
                     elif key == 'price_credit':
-                        entry[0] = 'Price in credits'
+                        entry[0] = 'Credit cost'
                         entry[1] = f"{constants.Wows.Emojis.silver} {entry[1]:,}"
                     elif key == 'price_gold':
-                        entry[0] = 'Price in doubloons'
+                        entry[0] = 'Doubloon cost'
                         entry[1] = f"{constants.Wows.Emojis.gold} {entry[1]:,}"
                     elif key == 'has_demo_profile': entry[0] = 'Test ship'
                     elif key == 'is_premium': entry[0] = 'Premium ship'
@@ -215,7 +221,7 @@ class Wows(commands.Cog):
                     embed.set_image(url=r[1])
                 else:
                     inline = (len(str(r[1])) < constants.Format.EMBED_INLINE_THRESHOLD)
-                    embed.add_field(name=r[0], value=r[1], inline=inline)
+                    embed.add_field(name=f'🔹{r[0]}', value=r[1], inline=inline)
 
         view = nav_menu.NavMenu(
             meta=meta, data=pages, title_function=title_function, parse_function=parse_function, type='CustomPaginatedDF'
