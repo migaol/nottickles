@@ -3,7 +3,7 @@ def expand_json(json: dict):
 
     def expand_json_rec(json: dict, parent_key: str):
         for key, value in json.items():
-            newkey = parent_key + ';' + key if parent_key else key
+            newkey = parent_key + '.' + key if parent_key else key
             if isinstance(value, dict):
                 expand_json_rec(value, newkey)
             else:

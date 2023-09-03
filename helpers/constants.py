@@ -40,10 +40,27 @@ class Attach:
         RATTOSPACE = 'assets/fun/rat_to_space.mp4'
         BOUNCE = 'assets/fun/bounce.webm'
 
+class UnitConversion:
+    mi_km = 1.609344
+
 class Wows:
     class Emojis:
-        silver = '<:wows_credits:1142530776366334083>'
-        gold = '<:wows_gold:1142530866170572804>'
+        logo = '<:wows_logo:1147753092599779439>'
+        silver = '<:wows_credits:1147753069543706734>'
+        gold = '<:wows_gold:1147753079958143056>'
+        xp = '<:wows_xp:1147753117950152744>'
+        damage_caused = '<:wows_damage_caused:1147761900961144882>'
+        damage_spotting = '<:wows_damage_spotting:1147761898599747615>'
+        damage_tanked = '<:wows_damage_potential:1147761899908382741>'
+        kill_ribbon = '<:wows_ribbon_kill:1147946461120712755>'
+        mainbattery_ribbon = '<:wows_ribbon_mainbattery:1147946462412546208>'
+        secondary_ribbon = '<:wows_ribbon_secondary:1147946458679619695>'
+        torpedo_ribbon = '<:wows_ribbon_torpedo:1147946463930875955>'
+        spotted_ribbon = '<:wows_ribbon_spotted:1147753136119885965>'
+        captured_ribbon = '<:wows_ribbon_captured:1147755076459450458>'
+        defended_ribbon = '<:wows_ribbon_defended:1147755090770411540>'
+        planekill_ribbon = '<:wows_ribbon_planekill:1147757790954266726>'
+        randoms = '<:wows_randombattle:1147753107393089617>'
     
     ship_index = {}
     ship_id_index = {}
