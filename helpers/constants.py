@@ -36,6 +36,7 @@ class Link:
 class Attach:
     class External:
         THATSROUGHBUDDY = 'https://tenor.com/view/my-first-girlfriend-turned-into-the-moon-thats-rough-that-rough-buddy-avatar-avatar-the-last-airbender-gif-5710468'
+        RATJAM = 'https://cdn.discordapp.com/emojis/792904817479122944.gif?v=1'
     class File:
         RATTOSPACE = 'assets/fun/rat_to_space.mp4'
         BOUNCE = 'assets/fun/bounce.webm'
