@@ -52,7 +52,7 @@ class NavMenu(discord.ui.View):
         )
         if isinstance(self.ptable, paginated_table.CustomPaginatedDF):
             embed.description = f"**{self.ptable.subtitles[self.ptable.page]}**"
-        self.ptable.parse_function(embed, meta, nextpage)
+        self.ptable.parse_function(embed, meta, nextpage, self.ptable.get_page_no())
         return embed
     
     def update_buttons(self):

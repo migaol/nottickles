@@ -72,7 +72,7 @@ class Wows(commands.Cog):
         def title_function(meta: dict, data: Union[dict, pd.DataFrame]) -> str:
             return f"Player search (Server: {meta['server']}): '{meta['player']}' "
         
-        def parse_function(embed: discord.Embed, meta: dict, data: Union[dict, pd.DataFrame]):
+        def parse_function(embed: discord.Embed, meta: dict, data: Union[dict, pd.DataFrame], pageno: int):
             nicknames = data['nickname'].values.astype(str)
             nicknames = [x.replace('_', '\_') for x in nicknames]
             account_ids = data['account_id'].values.astype(str)
@@ -264,8 +264,8 @@ class Wows(commands.Cog):
         def title_function(meta: dict, data: Union[dict, pd.DataFrame]) -> str:
             return f"Player data (Server: {meta['server']}): '{meta['player']}'"
         
-        def parse_function(embed: discord.Embed, meta: dict, data: Union[dict, pd.DataFrame]) -> str:
-            for i,r in data.iterrows():
+        def parse_function(embed: discord.Embed, meta: dict, data: Union[dict, pd.DataFrame], pageno: int) -> str:
+            for _,r in data.iterrows():
                 embed.add_field(name=f'🔹{r[0]}', value=r[1], inline=True)
 
         view = nav_menu.NavMenu(
@@ -276,8 +276,8 @@ class Wows(commands.Cog):
         await interaction.response.send_message(embed=view.update_embed(view.ptable.meta, view.ptable.jump_page(0)), view=view)
 
     @app_commands.command(name='wshipinfo', description='WoWS - get warship information', extras={'category': thiscategory})
-    @app_commands.describe(shipname='Ship to search for')
-    async def warship_info(self, interaction: discord.Interaction, shipname: str):
+    @app_commands.describe(shipname='Ship to search for', display_normal='Mobile-friendly display (leave blank for fancy display)')
+    async def warship_info(self, interaction: discord.Interaction, shipname: str, display_normal: Optional[str] = None):
         ship_index = const.Wows.ship_index
         informal = unidecode(shipname).lower()
         if informal in const.Wows.ship_index:
@@ -297,6 +297,7 @@ class Wows(commands.Cog):
         meta['tier'] = const.Wows.tier_roman[data['tier']]
         meta['nation'] = const.Wows.ship_nationality[data['nation']]
         meta['type'] = const.Wows.ship_type[data['type']]
+        meta['FANCY_DISPLAY'] = not(display_normal)
         if data['is_premium']: meta['_ICON'] = const.Wows.ship_type_image[data['type']]['image_premium']
         elif data['is_special']: meta['_ICON'] = const.Wows.ship_type_image[data['type']]['image_elite']
         else: meta['_ICON'] = const.Wows.ship_type_image[data['type']]['image']
@@ -349,7 +350,7 @@ class Wows(commands.Cog):
                     d['default_profile.weaponry.aircraft']],
                 ['Dive Capacity',
                     '0' if not data['default_profile']['submarine_battery'] else d['default_profile.submarine_battery.total']],
-                ['Underwater Maneuverability',
+                ['Underwater Maneuv.',
                     '0' if not data['default_profile']['submarine_mobility'] else d['default_profile.submarine_mobility.total']],
                 ['Sonar',
                     '0' if not data['default_profile']['submarine_sonar'] else d['default_profile.submarine_sonar.total']],
@@ -370,16 +371,25 @@ class Wows(commands.Cog):
         def title_function(meta: dict, data: Union[dict, pd.DataFrame]) -> str:
             return # f"Ship information: '{meta['shipname']}'"
         
-        def parse_function(embed: discord.Embed, meta: dict, data: Union[dict, pd.DataFrame]) -> str:
+        def parse_function(embed: discord.Embed, meta: dict, data: Union[dict, pd.DataFrame], pageno: int) -> str:
             embed.set_author(
                 name=f"Tier {meta['tier']} {meta['nation']} {meta['type']}: {meta['shipname']}",
                 icon_url=meta['_ICON']
             )
             embed.set_thumbnail(url=meta['_PICTURE'])
-            for i,r in data.iterrows():
-                if r[0] == '_IMAGE':
-                    embed.set_image(url=r[1])
-                else:
+            if pageno == 1:
+                for _,r in data.iterrows():
+                    if r[0] == '_IMAGE':
+                        embed.set_image(url=r[1])
+                    else:
+                        inline = (len(str(r[1])) < const.Format.EMBED_INLINE_THRESHOLD)
+                        embed.add_field(name=f'🔹{r[0]}', value=r[1], inline=inline)
+            elif pageno == 2 and meta['FANCY_DISPLAY']:
+                embed.add_field(name='\n'.join([r[0] for _,r in data.iterrows()]), value='', inline=True)
+                embed.add_field(name='\n'.join([str(r[1]) for _,r in data.iterrows()]), value='', inline=True)
+                embed.add_field(name='\n'.join([f"{int(r[1])//10 * '🟦'}{(10-int(r[1])//10) * '⬛'}" for _,r in data.iterrows()]), value='', inline=True)
+            else:
+                for _,r in data.iterrows():
                     inline = (len(str(r[1])) < const.Format.EMBED_INLINE_THRESHOLD)
                     embed.add_field(name=f'🔹{r[0]}', value=r[1], inline=inline)
 

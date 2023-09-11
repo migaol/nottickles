@@ -35,6 +35,9 @@ class AbstractPaginatedTable(ABC):
     
     def can_nnext(self) -> bool:
         return False if self.page + constants.Format.SIZE_NNEXT >= self.total_pages else True
+    
+    def get_page_no(self) -> int:
+        return self.page+1
 
 class PaginatedDF(AbstractPaginatedTable):
     page, per_row = 0, 0
