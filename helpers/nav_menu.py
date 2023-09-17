@@ -1,11 +1,8 @@
 import discord
-from discord.ext import commands
-from discord import app_commands
-from discord.ui import View, Button
+from discord.ui import Button
 from helpers import constants, paginated_table
-from typing import Any, Callable, Coroutine, Union
+from typing import Callable, Union
 import pandas as pd
-import math
 
 class NavMenu(discord.ui.View):
     ptable = None

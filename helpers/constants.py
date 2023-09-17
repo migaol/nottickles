@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 class Format:
     DEFAULT_PAGE_SIZE = 10
     SIZE_PPREV = -5
@@ -63,8 +65,8 @@ class Wows:
         planekill_ribbon = '<:wows_ribbon_planekill:1147757790954266726>'
         randoms = '<:wows_randombattle:1147753107393089617>'
     
-    ship_index = {}
-    ship_id_index = {}
+    ship_index = defaultdict(str)
+    ship_id_index = defaultdict(str)
     tier_roman = {
         1: 'I',
         2: 'II',

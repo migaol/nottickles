@@ -7,7 +7,9 @@ from helpers import nav_menu, json_parser
 from helpers import constants as const
 import requests, json, datetime, re
 import pandas as pd
+import numpy as np
 from unidecode import unidecode
+import datetime as dt
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Wows(bot))
@@ -28,7 +30,7 @@ class Wows(commands.Cog):
         try:
             response = requests.get(url)
         except requests.exceptions.RequestException as e:
-            await interaction.response.send_message(f"An error occurred: {e}")
+            await interaction.followup.send(f"An error occurred: {e}")
             return
         apidata = response.json()
         if apidata['status'] == 'error':
@@ -40,7 +42,7 @@ class Wows(commands.Cog):
                 embed.add_field(
                     name=field, value=apidata['error'][field]
                 )
-            await interaction.response.send_message(embed=embed)
+            await interaction.followup.send(embed=embed)
             return
         return apidata
 
@@ -49,17 +51,19 @@ class Wows(commands.Cog):
         apidata = await self.get_apidata(interaction, url)
         if not apidata: return None, None
         if len(apidata['data']) == 0:
-            await interaction.response.send_message(f"Player not found: '{playername}'")
+            await interaction.followup.send(f"Player not found: '{playername}'")
             return None, None
         first_match = apidata['data'][0]['nickname']
         if first_match.lower() != playername.lower():
-            await interaction.response.send_message(f"Player not found: '{playername}'")
+            await interaction.followup.send(f"Player not found: '{playername}'")
             return None, None
         return apidata['data'][0]['account_id'], first_match
 
     @app_commands.command(name='wfind', description='WoWS - search for a player', extras={'category': thiscategory})
     @app_commands.describe(playername='Player to search for', server='Server (NA, EU, ASIA)')
     async def search_player(self, interaction: discord.Interaction, playername: str, server: str = 'NA'):
+        await interaction.response.defer()
+        
         server = server.upper()
         url = f"{self.URLPATH[server]}account/list/{self.APPREQ}&search={playername}"
         apidata = await self.get_apidata(interaction, url)
@@ -83,13 +87,15 @@ class Wows(commands.Cog):
             meta=meta, data=data, title_function=title_function, parse_function=parse_function, type='PaginatedDF'
         )
 
-        await interaction.response.send_message(
+        await interaction.followup.send(
             embed=view.update_embed(view.ptable.meta, view.ptable.jump_page(0)), view=view
         )
 
     @app_commands.command(name='wplayerdata', description='WoWS - get player data', extras={'category': thiscategory})
     @app_commands.describe(playername='Player to search for', server='Server (NA, EU, ASIA)')
     async def player_data(self, interaction: discord.Interaction, playername: str, server: str = 'NA'):
+        await interaction.response.defer()
+        
         server = server.upper()
         uid, playername = await self.get_uid(interaction, playername, server)
         if not uid: return
@@ -273,18 +279,20 @@ class Wows(commands.Cog):
         )
         view.ptable.subtitles = subtitles
 
-        await interaction.response.send_message(embed=view.update_embed(view.ptable.meta, view.ptable.jump_page(0)), view=view)
+        await interaction.followup.send(embed=view.update_embed(view.ptable.meta, view.ptable.jump_page(0)), view=view)
 
     @app_commands.command(name='wshipinfo', description='WoWS - get warship information', extras={'category': thiscategory})
     @app_commands.describe(shipname='Ship to search for', display_normal='Mobile-friendly display (leave blank for fancy display)')
-    async def warship_info(self, interaction: discord.Interaction, shipname: str, display_normal: Optional[str] = None):
+    async def warship_info(self, interaction: discord.Interaction, shipname: str, display_normal: str = None):
+        await interaction.response.defer()
+        
         ship_index = const.Wows.ship_index
         informal = unidecode(shipname).lower()
         if informal in const.Wows.ship_index:
             shipname = ship_index[informal]['name']
             ship_id = ship_index[informal]['id']
         else:
-            await interaction.response.send_message(f"Ship not found: '{shipname}'")
+            await interaction.followup.send(f"Ship not found: '{shipname}'")
             return
 
         url = f"{self.URLPATH['NA']}encyclopedia/ships/{self.APPREQ}&ship_id={ship_id}"
@@ -398,4 +406,60 @@ class Wows(commands.Cog):
         )
         view.ptable.subtitles = subtitles
 
-        await interaction.response.send_message(embed=view.update_embed(view.ptable.meta, view.ptable.jump_page(0)), view=view)
+        await interaction.followup.send(embed=view.update_embed(view.ptable.meta, view.ptable.jump_page(0)), view=view)
+
+    @app_commands.command(name='wplayerstats', description='WoWS - show player statistics by date', extras={'category': thiscategory})
+    @app_commands.describe(playername='Player to search for', server='Server (NA, EU, ASIA)')
+    async def player_stats(self, interaction: discord.Interaction, playername: str, server: str = 'NA'):
+        await interaction.response.defer()
+        
+        server = server.upper()
+        uid, playername = await self.get_uid(interaction, playername, server)
+        if not uid: return
+
+        day_deltas = range(0,28)
+        current_date = dt.datetime.now()
+        dates = [(current_date - dt.timedelta(days=day_delta)).strftime("%Y%m%d") for day_delta in day_deltas]
+
+        pad_length = ((len(dates)-1)//10 + 1) * 10 - len(dates)
+        dates = np.pad(dates, (0,pad_length), mode='constant', constant_values=None)
+        dates = np.reshape(dates, (len(dates)//10, 10))
+        data = {}
+        for date10 in dates:
+            dates_param = '%2C'.join(date10).replace('%2CNone', '')
+            url = f"{self.URLPATH[server]}account/statsbydate/{self.APPREQ}&account_id={uid}&dates={dates_param}"
+            apidata = await self.get_apidata(interaction, url)
+            if not apidata: return
+            if apidata['data'][str(uid)]['pvp']:
+                data.update(apidata['data'][str(uid)]['pvp'])
+
+        meta = {
+            'player': playername,
+            'server': server
+        }
+        def add_pages():
+            d = json_parser.expand_json(data)
+            print(data)
+
+            pages = [
+                ['f','f']
+            ]
+            return pages
+        pages = add_pages()
+
+        subtitles = [
+            f"{const.Wows.Emojis.logo} Player Statistics: '{meta['player']}'"
+        ]
+        
+        def title_function(meta: dict, data: Union[dict, pd.DataFrame]) -> str:
+            return # f"Player Statistics: '{meta['player']}'"
+        
+        def parse_function(embed: discord.Embed, meta: dict, data: Union[dict, pd.DataFrame], pageno: int) -> str:
+            embed.set_image(url="https://quickchart.io/chart?c={type:%27bar%27,data:{labels:[2012,2013,2014,2015,2016],datasets:[{label:%27Users%27,data:[120,60,50,180,120]}]}}")
+
+        view = nav_menu.NavMenu(
+            meta=meta, data=pages, title_function=title_function, parse_function=parse_function, type='CustomPaginatedDF'
+        )
+        view.ptable.subtitles = subtitles
+
+        await interaction.followup.send(embed=view.update_embed(view.ptable.meta, view.ptable.jump_page(0)), view=view)

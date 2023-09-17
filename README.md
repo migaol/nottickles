@@ -2,5 +2,6 @@
 A discord bot called "not tickles" made by tickles
 
 ## roadmap
-- wows.py
-- image to ascii
+### wip:
+- wows.py player states
+- calculator
