@@ -84,6 +84,7 @@ class Wows(commands.Cog):
             embed.add_field(name='Account ID', value='\n'.join(account_ids), inline=True)
 
         view = nav_menu.NavMenu(
+            author=interaction.user,
             meta=meta, data=data, title_function=title_function, parse_function=parse_function, type='PaginatedDF'
         )
 
@@ -275,6 +276,7 @@ class Wows(commands.Cog):
                 embed.add_field(name=f'🔹{r[0]}', value=r[1], inline=True)
 
         view = nav_menu.NavMenu(
+            author=interaction.user,
             meta=meta, data=pages, title_function=title_function, parse_function=parse_function, type='CustomPaginatedDF'
         )
         view.ptable.subtitles = subtitles
@@ -402,6 +404,7 @@ class Wows(commands.Cog):
                     embed.add_field(name=f'🔹{r[0]}', value=r[1], inline=inline)
 
         view = nav_menu.NavMenu(
+            author=interaction.user,
             meta=meta, data=pages, title_function=title_function, parse_function=parse_function, type='CustomPaginatedDF'
         )
         view.ptable.subtitles = subtitles
@@ -458,6 +461,7 @@ class Wows(commands.Cog):
             embed.set_image(url="https://quickchart.io/chart?c={type:%27bar%27,data:{labels:[2012,2013,2014,2015,2016],datasets:[{label:%27Users%27,data:[120,60,50,180,120]}]}}")
 
         view = nav_menu.NavMenu(
+            author=interaction.user,
             meta=meta, data=pages, title_function=title_function, parse_function=parse_function, type='CustomPaginatedDF'
         )
         view.ptable.subtitles = subtitles

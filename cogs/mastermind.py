@@ -19,7 +19,9 @@ class Mastermind(commands.Cog):
     @app_commands.command(name='mastermind', description='Play mastermind', extras={'category': thiscategory})
     @app_commands.describe()
     async def mastermind(self, interaction: discord.Interaction):
-        game = MastermindGame()
+        sequence_length = 4
+        max_guesses = 10
+        game = MastermindGame(interaction.user, sequence_length, max_guesses)
         await interaction.response.send_message(embed=game.update_embed(), view=game)
 
 class MastermindGame(discord.ui.View):
@@ -33,6 +35,9 @@ class MastermindGame(discord.ui.View):
         '_': '⬛'
     }
     COLOR_LETTERS = ['r', 'o', 'y', 'g', 'b', 'p']
+
+    async def interaction_check(self, interaction: discord.Interaction):
+        return interaction.user.id == self.author.id
 
     @discord.ui.button(style=discord.ButtonStyle.gray, row=0, emoji=COLORS['r'], custom_id="r")
     async def r_callback(self, interaction: discord.Interaction, button: Button):
@@ -80,8 +85,9 @@ class MastermindGame(discord.ui.View):
         await interaction.response.edit_message(
             embed=self.help_embed() if self.mode == 'help' else self.update_embed(), view=self)
 
-    def __init__(self, sequence_length: int = 4, max_guesses: int = 10):
+    def __init__(self, author: discord.member.Member, sequence_length: int = 4, max_guesses: int = 10):
         super().__init__()
+        self.author = author
         self.mode = 'game'
         self.r_btn = [x for x in self.children if x.custom_id == "r"][0]
         self.o_btn = [x for x in self.children if x.custom_id == "o"][0]

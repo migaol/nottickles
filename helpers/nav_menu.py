@@ -7,6 +7,9 @@ import pandas as pd
 class NavMenu(discord.ui.View):
     ptable = None
 
+    async def interaction_check(self, interaction: discord.Interaction):
+        return interaction.user.id == self.author.id
+
     @discord.ui.button(style=discord.ButtonStyle.gray, emoji=constants.Emojis.PPREV, custom_id="pprev")
     async def pprev_callback(self, interaction: discord.Interaction, button: Button):
         nextpage = self.ptable.jump_page(constants.Format.SIZE_PPREV)
@@ -27,9 +30,10 @@ class NavMenu(discord.ui.View):
         nextpage = self.ptable.jump_page(constants.Format.SIZE_NNEXT)
         await interaction.response.edit_message(embed=self.update_embed(self.ptable.meta, nextpage), view=self)
 
-    def __init__(self, meta: dict, data: Union[dict, pd.DataFrame], title_function: Callable, parse_function: Callable,
+    def __init__(self, author: discord.member.Member, meta: dict, data: Union[dict, pd.DataFrame], title_function: Callable, parse_function: Callable,
                 type: str):
         super().__init__()
+        self.author = author
         if type == 'PaginatedDF':
             self.ptable = paginated_table.PaginatedDF(meta, data, title_function, parse_function)
         else:
