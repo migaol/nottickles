@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 from discord.ui import View, Button
 from typing import Optional, Union, Tuple
-from helpers import nav_menu, json_parser
+from helpers import nav_menu, json_parser, chart
 from helpers import constants as const
 import requests, json, datetime, re
 import pandas as pd
@@ -420,7 +420,8 @@ class Wows(commands.Cog):
         uid, playername = await self.get_uid(interaction, playername, server)
         if not uid: return
 
-        day_deltas = range(0,28)
+        max_days_ago = 28
+        day_deltas = range(0,max_days_ago)
         current_date = dt.datetime.now()
         dates = [(current_date - dt.timedelta(days=day_delta)).strftime("%Y%m%d") for day_delta in day_deltas]
 
@@ -441,24 +442,44 @@ class Wows(commands.Cog):
             'server': server
         }
         def add_pages():
-            d = json_parser.expand_json(data)
-            print(data)
+            df = pd.DataFrame(data).transpose().sort_index()
+            df = df[['battles', 'wins', 'xp', 'survived_battles', 'damage_dealt', 'frags', 'planes_killed']].astype('int')
+            date_range = [
+                (current_date - dt.timedelta(days=max_days_ago) + dt.timedelta(days=i)).strftime("%Y%m%d")
+                for i in range(max_days_ago+1)
+            ]
+            df = df.reindex(date_range)
+            df_range = pd.DataFrame({'min': df.min(skipna=True), 'max': df.max(skipna=True)}).astype('int')
+
+            print(df)
 
             pages = [
-                ['f','f']
+                chart.create_chart_url(df['battles'], 100),
+                chart.create_chart_url(df['wins'], 100),
+                chart.create_chart_url(df['xp'], 1e5),
+                chart.create_chart_url(df['survived_battles'], 100),
+                chart.create_chart_url(df['damage_dealt'], 1e6),
+                chart.create_chart_url(df['frags'], 10),
+                chart.create_chart_url(df['planes_killed'], 10)
             ]
             return pages
         pages = add_pages()
 
         subtitles = [
-            f"{const.Wows.Emojis.logo} Player Statistics: '{meta['player']}'"
+            f"{const.Wows.Emojis.logo} Player Statistics: '{meta['player']}' (Battle Count)",
+            f"{const.Wows.Emojis.logo} Player Statistics: '{meta['player']}' (Wins)",
+            f"{const.Wows.Emojis.logo} Player Statistics: '{meta['player']}' (XP)",
+            f"{const.Wows.Emojis.logo} Player Statistics: '{meta['player']}' (Battles Survived)",
+            f"{const.Wows.Emojis.logo} Player Statistics: '{meta['player']}' (Damage Dealt)",
+            f"{const.Wows.Emojis.logo} Player Statistics: '{meta['player']}' (Kills)",
+            f"{const.Wows.Emojis.logo} Player Statistics: '{meta['player']}' (Planes Shot Down)"
         ]
         
         def title_function(meta: dict, data: Union[dict, pd.DataFrame]) -> str:
             return # f"Player Statistics: '{meta['player']}'"
         
         def parse_function(embed: discord.Embed, meta: dict, data: Union[dict, pd.DataFrame], pageno: int) -> str:
-            embed.set_image(url="https://quickchart.io/chart?c={type:%27bar%27,data:{labels:[2012,2013,2014,2015,2016],datasets:[{label:%27Users%27,data:[120,60,50,180,120]}]}}")
+            embed.set_image(url=data)
 
         view = nav_menu.NavMenu(
             author=interaction.user,
