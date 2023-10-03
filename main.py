@@ -1,4 +1,4 @@
-import bot_secrets, discord, os, asyncio
+import bot_secrets, discord, os, asyncio, requests
 from discord.ext import commands
 from discord.ext.commands.cog import Cog
 from discord.ext.commands.core import Command, Group
@@ -6,8 +6,8 @@ from typing import Any, List, Mapping, Callable
 from helpers import constants, wows_ships
 
 class CustomHelpCommand(commands.HelpCommand):
-    '''TODO: custom help command
-    '''
+    """TODO: custom help command
+    """
     def __init__(self):
         super().__init__()
     
@@ -24,6 +24,10 @@ class CustomHelpCommand(commands.HelpCommand):
         return await super().send_cog_help(cog)
 
 async def load_commands(bot: commands.Bot):
+    """Load each command in the `./cogs` folder.
+    
+    Only these files will support reloading.
+    """
     skip = []
     for filename in os.listdir('./cogs'):
         if filename in skip: continue
@@ -47,9 +51,11 @@ if __name__ == '__main__':
     asyncio.run(load_commands(bot))
     print(f"✅ commands loaded")
 
-    print(f"⏳ loading wows ships...")
-    wows_ships.load_ship_ids()
-    print(f"✅ wows ships loaded")
+    print(f"⏳ loading WoWS ships...")
+    try: wows_ships.load_ship_ids()
+    except requests.exceptions.RequestException as e:
+        print(f"❌ error loading WoWS ships")
+    print(f"✅ WoWS ships loaded")
 
     print(f"⏳ logging in...")
     @bot.event
