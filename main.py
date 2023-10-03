@@ -6,6 +6,8 @@ from typing import Any, List, Mapping, Callable
 from helpers import constants, wows_ships
 
 class CustomHelpCommand(commands.HelpCommand):
+    '''TODO: custom help command
+    '''
     def __init__(self):
         super().__init__()
     

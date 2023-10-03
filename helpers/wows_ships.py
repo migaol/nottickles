@@ -11,14 +11,14 @@ def get_apidata(url):
     return response.json()
 
 def load_ship_ids():
-    url = f'https://api.worldofwarships.com/wows/encyclopedia/ships/?application_id={bot_secrets.APPID}'
+    url = f'https://api.worldofwarships.com/wows/encyclopedia/ships/?application_id={bot_secrets.WOWS_APPID}'
     apidata = get_apidata(url)
     if not apidata: return
 
     total_pages = apidata['meta']['page_total']
     for page in range(1, total_pages+1):
         print(f'\tLoading page {page} of {total_pages}')
-        url = f'https://api.worldofwarships.com/wows/encyclopedia/ships/?application_id={bot_secrets.APPID}&page_no={page}'
+        url = f'https://api.worldofwarships.com/wows/encyclopedia/ships/?application_id={bot_secrets.WOWS_APPID}&page_no={page}'
         apidata = get_apidata(url)
         if not apidata: return
         for ship_id in apidata['data']:

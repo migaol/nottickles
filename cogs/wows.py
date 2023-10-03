@@ -17,7 +17,7 @@ async def setup(bot: commands.Bot):
 class Wows(commands.Cog):
     bot = None
     thiscategory = 'wows'
-    APPREQ = '?application_id=' + bot_secrets.APPID
+    APPREQ = '?application_id=' + bot_secrets.WOWS_APPID
     URLPATH = {
         'NA': 'https://api.worldofwarships.com/wows/',
         'EU': 'https://api.worldofwarships.eu/wows/',
