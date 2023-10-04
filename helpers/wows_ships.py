@@ -7,9 +7,9 @@ def get_apidata(url: str) -> Optional[dict]:
     """Get an API response from the given URL.
 
     Args:
-        url (str): str target URL
+        - url (str): str target URL
     Returns:
-        Optional[dict]: A dict containing JSON data if the request is successful,
+        - Optional[dict]: A dict containing JSON data if the request is successful,
             or None if there was an error during the request
     Raises: None
     """
@@ -28,7 +28,7 @@ def load_ship_ids():
     Returns:
         None
     Raises:
-        requests.exceptions.RequestException: If an error occurred getting API data
+        - requests.exceptions.RequestException: If an error occurred getting API data
     """
     url = f'https://api.worldofwarships.com/wows/encyclopedia/ships/?application_id={bot_secrets.WOWS_APPID}'
     apidata = get_apidata(url)

@@ -24,9 +24,14 @@ class CustomHelpCommand(commands.HelpCommand):
         return await super().send_cog_help(cog)
 
 async def load_commands(bot: commands.Bot):
-    """Load each command in the `./cogs` folder.
-    
-    Only these files will support reloading.
+    """Load each command in the `./cogs` folder.  Only these files will support reloading.
+
+    Args:
+        - bot (discord.ext.commands.Bot): the bot to load commands for
+    Returns:
+        None
+    Raises:
+        None
     """
     skip = []
     for filename in os.listdir('./cogs'):
